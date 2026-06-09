@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import posthog from "posthog-js";
 import Link from "next/link";
 import Image from "next/image";
 import type { Product, ProductColor } from "@/types";
@@ -43,6 +44,15 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
   function handleAddToCart() {
     if (!selectedSize) return;
     addItem(product, selectedColor, selectedSize);
+    posthog.capture("product_added_to_cart", {
+      product_id: product.id,
+      product_name: product.name,
+      product_category: product.category,
+      color: selectedColor.name,
+      size: selectedSize,
+      price: product.price,
+      source: "quick_view",
+    });
     onClose();
   }
 

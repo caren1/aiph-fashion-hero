@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback } from "react";
+import posthog from "posthog-js";
 import type { CartItem, Product, ProductColor } from "@/types";
 import { CartDrawer } from "./cart-drawer";
 
@@ -48,8 +49,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const removeItem = useCallback((index: number) => {
+    const item = items[index];
+    if (item) {
+      posthog.capture("cart_item_removed", {
+        product_id: item.product.id,
+        product_name: item.product.name,
+        color: item.color.name,
+        size: item.size,
+        price: item.product.price,
+        quantity: item.quantity,
+      });
+    }
     setItems((prev) => prev.filter((_, i) => i !== index));
-  }, []);
+  }, [items]);
 
   const updateQuantity = useCallback((index: number, quantity: number) => {
     setItems((prev) => {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import posthog from "posthog-js";
 import Link from "next/link";
 import type { Product, ProductColor } from "@/types";
 import { StarIcon } from "@/components/icons";
@@ -64,6 +65,15 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const seller = getSellerById(product.sellerId);
   const deliveryDate = useMemo(() => getEstimatedDelivery(), []);
 
+  useEffect(() => {
+    posthog.capture("product_viewed", {
+      product_id: product.id,
+      product_name: product.name,
+      product_category: product.category,
+      price: product.price,
+    });
+  }, [product.id, product.name, product.category, product.price]);
+
   const collectionName = product.category === "men"
     ? "Men's Shoes"
     : product.category === "women"
@@ -79,6 +89,14 @@ export function ProductInfo({ product }: ProductInfoProps) {
   function handleAddToCart() {
     if (!selectedSize) return;
     addItem(product, selectedColor, selectedSize);
+    posthog.capture("product_added_to_cart", {
+      product_id: product.id,
+      product_name: product.name,
+      product_category: product.category,
+      color: selectedColor.name,
+      size: selectedSize,
+      price: product.price,
+    });
   }
 
   return (

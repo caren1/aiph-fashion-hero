@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -75,12 +76,12 @@ export function CartDrawer({
                 Your cart is empty. Start shopping!
               </p>
               <div className="space-y-2">
-                <a href="/collections/womens" className="btn-cta block">
+                <Link href="/collections/womens" className="btn-cta block">
                   SHOP WOMENS
-                </a>
-                <a href="/collections/mens" className="btn-cta-outline block">
+                </Link>
+                <Link href="/collections/mens" className="btn-cta-outline block">
                   SHOP MENS
-                </a>
+                </Link>
               </div>
             </div>
           ) : (
@@ -159,7 +160,13 @@ export function CartDrawer({
             <Link
               href="/checkout"
               className="btn-cta w-full block text-center"
-              onClick={onClose}
+              onClick={() => {
+                posthog.capture("checkout_started", {
+                  item_count: items.length,
+                  subtotal,
+                });
+                onClose();
+              }}
             >
               CHECKOUT
             </Link>

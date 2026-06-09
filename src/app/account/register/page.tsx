@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import posthog from "posthog-js";
 import { useAuth } from "@/components/auth-provider";
 
 export default function RegisterPage() {
@@ -33,6 +34,8 @@ export default function RegisterPage() {
     }
 
     await register({ email, password, firstName, lastName });
+    posthog.identify(email, { email, first_name: firstName, last_name: lastName });
+    posthog.capture("user_registered", { email, first_name: firstName, last_name: lastName });
     router.push("/account");
   }
 
